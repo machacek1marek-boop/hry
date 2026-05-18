@@ -20,37 +20,45 @@ prvni_klik = True       # Garantovaně bez miny
 print("definovano")
 
 ##definice command
-def play():
+def back():
+    print("jdu do lobby")
+    herni_okno.withdraw()
+    lobby_okno.deiconify()
+
+def settings():
+    print("settings okno")
+    lobby_okno.withdraw()
+    settings_okno.deiconify()
+
+def settings_back():
     global SIRKA, VYSKA, POCET_MIN
-    
     # 1. Načtení textu z políček
     hodnota_x = nastavovaci_radek_x.get("1.0", "end-1c")
     hodnota_m = nastavovaci_radek_m.get("1.0", "end-1c")
-    
-    # 2. Kontrola, jestli nejsou políčka prázdná
-    if hodnota_x == "":
+    SIRKA = int(hodnota_x)
+    VYSKA = SIRKA
+    POCET_MIN = int(hodnota_m)
+    # 4. výpis
+    print(f"SIRKA: {SIRKA}")
+    print(f"VYSKA: {VYSKA}")
+    print(f"p_min: {POCET_MIN}")
+    print("zpet do lobby")
+    settings_okno.withdraw()
+    lobby_okno.deiconify()
+
+def play():
+    global SIRKA, VYSKA, POCET_MIN
+    if SIRKA == "":
         SIRKA = 10
         VYSKA = 10
         print("sirka chybí, nastavuji 10")
-    if hodnota_m == "":
+    if POCET_MIN == "":
         POCET_MIN = 10
-        print("pocet m chybí, nastavuji 10")
-    else:
-        # 3. Převod na čísla (teď už bezpečně)
-        SIRKA = int(hodnota_x)
-        VYSKA = SIRKA
-        POCET_MIN = int(hodnota_m)
-        
-        # 4. Správný výpis (pomocí f-stringu)
-        print(f"SIRKA: {SIRKA}")
-        print(f"VYSKA: {VYSKA}")
-        print(f"p_min: {POCET_MIN}")
-
-    print("herní pole")
+        print("pocet m chybí, nastavuji 10")   
     lobby_okno.withdraw()
     herni_okno.deiconify()
-    herni_okno.geometry(str(31* SIRKA) + "x" + str(26* VYSKA))
-    
+    herni_okno.geometry(str(31* SIRKA) + "x" + str(26* VYSKA+33))
+
     for r in range(VYSKA):
         radek_tlacitek = []
         for s in range(SIRKA):
@@ -63,13 +71,13 @@ def play():
                 command=lambda r=r, s=s: klik_na_policko(r, s)
             )
             # Umístíme ho do mřížky (grid)
-            t_tlacitko.grid(row=r, column=s)
+            t_tlacitko.grid(row=r+1, column=s)
             radek_tlacitek.append(t_tlacitko)
         # Tlačítka si můžeme ukládat do seznamu, abychom s nimi mohli později pracovat
         odhalené.append(radek_tlacitek)
 
-##grafika  
-# Vytvoření lobby okna
+###grafika  
+## Vytvoření lobby okna
 lobby_okno = tk.Tk()
 lobby_okno.title("Miny_lobby")
 lobby_okno.geometry("600x500")
@@ -82,25 +90,37 @@ logo.grid(pady=(5, 10))
 #play buton
 play_tlacitko = tk.Button(lobby_okno, text="Play 🔺", font=("Arial", 25), bg="green", command=play)
 play_tlacitko.grid(pady=(10, 25))
+#settings buton
+settings_tlacitko = tk.Button(lobby_okno, text="Settings", font=("Arial", 10), bg="grey", command=settings)
+settings_tlacitko.grid(pady=(150, 25))
+##vytvorení settings okna
+settings_okno = tk.Toplevel(lobby_okno)
+settings_okno.title("settings")
+settings_okno.geometry("300x300")
+#settings bvak buton
+back_tlacitko = tk.Button(settings_okno, text="⬅️", font=("Arial", 10), bg="grey", command=settings_back)
+back_tlacitko.grid(pady=(10, 25), padx=138)
 #popis nastavovaciho pole x
-x_x_label = tk.Label(lobby_okno, text="nast. vel. pole", font=("Arial", 10))
+x_x_label = tk.Label(settings_okno, text="velikost pole", font=("Arial", 10))
 x_x_label.grid(pady=(25, 1))
 #nastavení x*x
-nastavovaci_radek_x = tk.Text(lobby_okno, height=1, font=("Arial", 10), width=13)
+nastavovaci_radek_x = tk.Text(settings_okno, height=1, font=("Arial", 10), width=13)
 nastavovaci_radek_x.grid(pady=(1, 10))
 #popis nastavovaciho pole m
-m_label = tk.Label(lobby_okno, text="nast. počt min", font=("Arial", 10))
+m_label = tk.Label(settings_okno, text="počet min", font=("Arial", 10))
 m_label.grid(pady=(10, 1))
 #nastavení pocet min
-nastavovaci_radek_m = tk.Text(lobby_okno, height=1, font=("Arial", 10), width=12)
+nastavovaci_radek_m = tk.Text(settings_okno, height=1, font=("Arial", 10), width=12)
 nastavovaci_radek_m.grid(pady=(1, 5))
-
-# Vytvoření herní okna
+settings_okno.withdraw()
+## Vytvoření herní okna
 herni_okno = tk.Toplevel(lobby_okno)
 herni_okno.title("Miny_hra")
-herni_okno.geometry(str(31* SIRKA) + "x" + str(26* VYSKA))
+herni_okno.geometry("200x200")
+#back buton
+back_tlacitko = tk.Button(herni_okno, text="⬅️", font=("Arial", 10), bg="grey", command=back)
+back_tlacitko.grid(pady=(0, 5))
 herni_okno.withdraw()
-
 
 # Spuštění programu
 lobby_okno.mainloop()
