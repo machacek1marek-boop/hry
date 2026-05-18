@@ -35,9 +35,14 @@ def settings_back():
     # 1. Načtení textu z políček
     hodnota_x = nastavovaci_radek_x.get("1.0", "end-1c")
     hodnota_m = nastavovaci_radek_m.get("1.0", "end-1c")
-    SIRKA = int(hodnota_x)
-    VYSKA = SIRKA
-    POCET_MIN = int(hodnota_m)
+    if hodnota_x == "":
+        SIRKA = 10
+        VYSKA = 10
+        print("sirka chybí, nastavuji 10")
+    else:
+        SIRKA = int(hodnota_x)
+        VYSKA = SIRKA
+        POCET_MIN = int(hodnota_m)
     # 4. výpis
     print(f"SIRKA: {SIRKA}")
     print(f"VYSKA: {VYSKA}")
@@ -93,6 +98,7 @@ play_tlacitko.grid(pady=(10, 25))
 #settings buton
 settings_tlacitko = tk.Button(lobby_okno, text="Settings", font=("Arial", 10), bg="grey", command=settings)
 settings_tlacitko.grid(pady=(150, 25))
+
 ##vytvorení settings okna
 settings_okno = tk.Toplevel(lobby_okno)
 settings_okno.title("settings")
@@ -113,6 +119,7 @@ m_label.grid(pady=(10, 1))
 nastavovaci_radek_m = tk.Text(settings_okno, height=1, font=("Arial", 10), width=12)
 nastavovaci_radek_m.grid(pady=(1, 5))
 settings_okno.withdraw()
+
 ## Vytvoření herní okna
 herni_okno = tk.Toplevel(lobby_okno)
 herni_okno.title("Miny_hra")
