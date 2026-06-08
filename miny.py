@@ -52,20 +52,69 @@ def settings_back():
     print(f"p_min: {POCET_MIN}")
     print("zpet do lobby")
     prepni_na(lobby_okno)
-
-def play():
+    
+def kontrola():
     global SIRKA, VYSKA, POCET_MIN
     if SIRKA == "":
         SIRKA = 10
         VYSKA = 10
-        print("sirka chybí, nastavuji 10")
+        rint("sirka chybí, nastavuji 10")
     if POCET_MIN == "":
         POCET_MIN = 10
         print("pocet m chybí, nastavuji 10")
-    
-    prepni_na(herni_okno)
-    herni_okno.geometry(str(31* SIRKA) + "x" + str(26* VYSKA+33))
+        
+def reset():
+    global  SIRKA, VYSKA, POCET_MIN, herní_pole, odhalené, prvni_klik, hra_bezi
+    prvni_klik = True
+    hra_bezi = True
+    # Vyčištění okna od starých tlačítek
+    for widget in herni_okno.winfo_children():
+        if widget != lista_nahore and widget != lista_akci:
+            widget.destroy()
+    # Zde kompletně vyprázdníme stará data
+    herní_pole = []
+    odhalené = []
 
+def rozmisteni_min():
+    global SIRKA, VYSKA, POCET_MIN, herní_pole, odhalené, prvni_klik, hra_bezi
+    #pridat rozmistení
+
+def l_klik_na_poplicko():
+    global SIRKA, VYSKA, POCET_MIN, herní_pole, odhalené, prvni_klik, hra_bezi
+    if prvni_klik:
+        rozmisteni_min()
+    if herní_pole[r][s]["je_mina"]:
+        print("BUM! Konec hry.")
+        odhalené[r][s].config(text="💣", bg="red")
+        # Sem pak dodáš zprávu pro hráče a zablokování hry
+    else:
+        print(f"Klikl jsi na bezpečné políčko [{r}, {s}]")
+        # Sem pak dodáš zobrazení čísla (počtu sousedů)
+
+def play():
+    global SIRKA, VYSKA, POCET_MIN, herní_pole, odhalené, prvni_klik, hra_bezi
+    kontrola()    
+    prepni_na(herni_okno)
+    herni_okno.geometry(str(31* SIRKA) + "x" + str(26* VYSKA+66))
+    lista_akci.grid(row=SIRKA+1, column=0, columnspan=10, sticky="w")
+    reset()
+    # ==============================================================================
+    # ZDE JE TVORBA 2D POLE SE SLOVNÍKY:
+    # ==============================================================================
+    for r in range(VYSKA):          # Procházíme řádky (např. 0 až 9)
+        radek_mapy = []             # Vytvoříme jeden prázdný řádek
+        
+        for s in range(SIRKA):      # V každém řádku projdeme sloupce (např. 0 až 9)
+            # Vytvoříme slovník pro jedno konkrétní políčko
+            policko = {
+                "je_mina": False,
+                "pocet_sousedu": 0
+            }
+            # Přidáme políčko do aktuálního řádku
+            radek_mapy.append(policko)
+            
+        # Když máme celý řádek plný políček, vložíme ho do hlavní mapy
+        herní_pole.append(radek_mapy)
     for r in range(VYSKA):
         radek_tlacitek = []
         for s in range(SIRKA):
@@ -82,6 +131,7 @@ def play():
             radek_tlacitek.append(t_tlacitko)
         # Tlačítka si můžeme ukládat do seznamu, abychom s nimi mohli později pracovat
         odhalené.append(radek_tlacitek)
+    
 
 ###grafika  
 ## Vytvoření lobby okna
@@ -98,7 +148,7 @@ logo.grid(pady=(5, 10))
 play_tlacitko = tk.Button(lobby_okno, text="Play 🔺", font=("Arial", 25), bg="green", command=play)
 play_tlacitko.grid(pady=(10, 25))
 #settings buton
-settings_tlacitko = tk.Button(lobby_okno, text="⚙️", font=("Arial", 10), bg="grey", command=lambda: prepni_na(settings_okno))
+settings_tlacitko = tk.Button(lobby_okno, text="⚙nastavení", font=("Arial", 10), bg="grey", command=lambda: prepni_na(settings_okno))
 settings_tlacitko.grid(pady=(150, 25))
 
 ##vytvorení settings okna
@@ -126,11 +176,20 @@ settings_okno.withdraw()
 herni_okno = tk.Toplevel(lobby_okno)
 herni_okno.title("herni_okno")
 herni_okno.geometry("200x200")
+#lista nehore frame 
+lista_nahore = tk.Frame(herni_okno)
+lista_nahore.grid(row=0, column=0, columnspan=10, sticky="w")
 #back buton
-back_tlacitko = tk.Button(herni_okno, text="⬅️", font=("Arial", 10), bg="grey", command=lambda: prepni_na(lobby_okno))
-back_tlacitko.grid(pady=(0, 5))
+back_tlacitko = tk.Button(lista_nahore, text="⬅️", font=("Arial", 10), bg="grey", command=lambda: prepni_na(lobby_okno))
+back_tlacitko.grid(row= 0, column=0, pady=(0, 5))
 #settings buton
-settings_tlacitko = tk.Button(herni_okno, text="⚙️", font=("Arial", 10), bg="grey", command=lambda: prepni_na(settings_okno))
+settings_tlacitko = tk.Button(lista_nahore, text="⚙nastavení", font=("Arial", 10), bg="grey", command=lambda: prepni_na(settings_okno))
+settings_tlacitko.grid(row= 0, column=1, pady=(0, 5))
+#lista dole frame
+lista_akci = tk.Frame(herni_okno)
+lista_akci.grid(row=SIRKA+1, column=0, columnspan=10, sticky="w", pady=(5, 0))
+#settings buton
+settings_tlacitko = tk.Button(lista_akci, text="neco", font=("Arial", 10), bg="grey")
 settings_tlacitko.grid(row= 0, column=1, pady=(0, 5))
 #ukoncení
 herni_okno.withdraw()
